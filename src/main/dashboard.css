@@ -551,7 +551,7 @@
 
 .chat-log {
     flex: 1;
-    overflow-y: auto;
+    overflow-y:scroll;
     overflow-x: hidden;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -568,11 +568,12 @@
     flex-shrink: 0;
 }
 
-.chat-input form {
+.chat-input div {
     display: flex;
     flex-direction: row;
     align-items: center;
     height: 100%;
+    position: relative;
 }
 
 .chat-input textarea {
@@ -598,8 +599,199 @@
     background-color: #0056b3;
 }
 
+.chat-message.user {
+    text-align: right;
+}
 
+.chat-message.assistant {
+    text-align: left;
+}
 
+.chat-message {
+    margin-bottom: 2px;
+}
+
+.textbox-right {
+    position: relative;
+    display: inline-block;
+    margin: .55em 15px .55em 0;
+    padding: 7px 10px;
+    max-width: 100%;
+    color: #555;
+    font-size: 16px;
+    background: #C5D7FB;
+    border-radius: 5px;
+}
+
+.textbox-right:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-top: -15px;
+    border: 15px solid transparent;
+    border-left: 15px solid #C5D7FB;
+}
+
+.textbox-left {
+    position: relative;
+    display: inline-block;
+    margin: .55em 0 .55em 15px;
+    padding: 7px 10px;
+    max-width: 100%;
+    color: #555;
+    font-size: 16px;
+    background: #E8F1FE;
+    border-radius: 5px;
+}
+
+.textbox-left:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -30px;
+    margin-top: -15px;
+    border: 15px solid transparent;
+    border-right: 15px solid #E8F1FE;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+thead {
+    display: table-header-group;
+    vertical-align: middle;
+    unicode-bidi: isolate;
+    border-color: inherit;
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    unicode-bidi: isolate;
+    border-color: inherit;
+}
+th {
+    background-color: #f2f2f2;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+td {
+    display: table-cell;
+    vertical-align: inherit;
+    unicode-bidi: isolate;
+}
+
+#edit_button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+
+#create_button {
+    margin-top: 10px;
+    background-color: #007bff;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+
+#group_form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.share-import {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.share-import h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.share-import p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.share-link {
+    display: flex;
+    align-items: center;
+}
+
+.share-link button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.share-link input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.share-link button:hover {
+    background-color: #0056b3;
+}
 
 @media (min-width: 768px) {
     .close-button {
@@ -631,6 +823,16 @@
         z-index: 9999;
         border-left: none;
     }
+
+    .share-link {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .share-link button {
+        width: 100%;
+    }
+
     .menu h2 {
         text-align: center;
     }

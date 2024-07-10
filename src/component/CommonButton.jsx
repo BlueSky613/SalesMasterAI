@@ -2,12 +2,8 @@ import React from 'react'
 
 export default function CommonButton(props) {
 
-const filterStatus = (index) => {
-
-}
-
     return (
-        <button onClick={() => filterStatus(props.index)} className={`status-button ${props.class_name}`}>
+        <button onClick={props.handleClick} className={`status-button ${props.class_name}`} onChange={props.handle}>
             {props.label}
         </button>
     )

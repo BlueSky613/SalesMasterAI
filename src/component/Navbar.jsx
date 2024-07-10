@@ -1,6 +1,9 @@
 import React from 'react'
+import { useSelector } from 'react-redux';
 
 export default function Navbar() {
+
+    const {user} = useSelector(state => state.user)
 
     const toggleMenu = () => {
         document.getElementById('menu').classList.toggle('active');
@@ -14,7 +17,7 @@ export default function Navbar() {
                 <div></div>
             </div>
             <h1 className="user-name">
-                ようこそ test さん！
+                ようこそ {localStorage.getItem('username')} さん！
             </h1>
         </div>
     )
