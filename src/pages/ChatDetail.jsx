@@ -29,82 +29,53 @@ export default function ChatDetail() {
     const [isClicked, setIsClicked] = useState(false)
     const [audioContext, setAudioContext] = useState(null)
 
-    const [isRecroding, setIsRecording] = useState(false)
-    const mediaRecorder = useRef(null)
-    const audioChunk = useRef([])
+    const [isListening, setIsListening] = useState(false);
+    const [transcript, setTranscript] = useState('');
+    const [recognition, setRecognition] = useState(null);
 
-    const startRecording = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-            mediaRecorder.current = new MediaRecorder(stream)
-            mediaRecorder.current.addEventListener('dataavailable', (e) => {
-                if (e.data.size > 0) {
-                    audioChunk.current.push(e.data)
+    useEffect(() => {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert('Your browser does not support speech recognition. Please use Chrome or another supported browser.');
+            return;
+        }
+
+        const speechRecognition = new window.webkitSpeechRecognition();
+        speechRecognition.continuous = true;
+        speechRecognition.interimResults = true;
+        speechRecognition.lang = 'ja-JP';
+
+        speechRecognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
                 }
-            })
-            mediaRecorder.current.start()
-            setIsRecording(true)
-        } catch (error) {
-            console.error('Error accessing microphone:', error);
-            if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-              alert('No microphone found. Please connect a microphone and try again.');
-            } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-              alert('Permission to use microphone was denied. Please allow microphone access and try again.');
-            } else {
-              alert('Error accessing the microphone. Please check your device settings and try again.');
             }
+            setTranscript(finalTranscript + interimTranscript);
+        };
+
+        speechRecognition.onerror = (event) => {
+            console.error('Speech recognition error detected: ' + event.error);
+        };
+
+        setRecognition(speechRecognition);
+    }, []);
+
+    const startListening = () => {
+        if (recognition) {
+            recognition.start();
+            setIsListening(true);
         }
-    }
+    };
 
-    const stopRecording = () => {
-        if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
-            mediaRecorder.current.stop()
-            setIsRecording(false)
-            mediaRecorder.current.onstop = () => {
-                convertToMp3AndSend()
-            }
-        }
-    }
-
-    const convertToMp3AndSend = async () => {
-        const audioBlob = new Blob(audioChunk.current, { type: 'audio/webm' })
-        const audioBuffer = await audioBlob.arrayBuffer()
-        const wav = lamejs.WavHeader.readHeader(new DataView(audioBuffer))
-        const samples = new Int16Array(audioBuffer, wav.dataOffset, wav.dataLen / 2)
-        const mp3encoder = new lamejs.Mp3Encoder(1, wav.sampleRate, 128);
-        const mp3Data = [];
-
-        const sampleBlockSize = 1152;
-        for (let i = 0; i < samples.length; i += sampleBlockSize) {
-            const sampleChunk = samples.subarray(i, i + sampleBlockSize);
-            const mp3buf = mp3encoder.encodeBuffer(sampleChunk);
-            if (mp3buf.length > 0) {
-                mp3Data.push(new Int8Array(mp3buf));
-            }
-        }
-
-        const mp3buf = mp3encoder.flush();
-        if (mp3buf.length > 0) {
-            mp3Data.push(new Int8Array(mp3buf));
-        }
-
-        const mp3Blob = new Blob(mp3Data, { type: 'audio/mp3' });
-        sendToBackend(mp3Blob);
-    }
-
-    const sendToBackend = async (mp3Blob) => {
-        const formData = new FormData();
-        formData.append('audio', mp3Blob, 'recording.mp3');
-
-        try {
-            const response = await axios.post('http://localhost:8000/v1/audio/', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload successful:', response.data);
-        } catch (error) {
-            console.error('Error uploading audio:', error);
+    const stopListening = () => {
+        if (recognition) {
+            recognition.stop();
+            setIsListening(false);
+            setContent(transcript)
         }
     };
 
@@ -296,10 +267,10 @@ export default function ChatDetail() {
 
                 <div className='chat-input'>
                     <div id='chat-form'>
-                        <textarea name='message' id='msg' required rows='3' placeholder='メッセージを入力してください...' value={content} onChange={(e) => setContent(e.target.value)} disabled={disabled} style={{paddingRight:'50px'}}></textarea>
-                        <button style={{position:'absolute',right:'70px', bottom:'10px', background:'none', border:'none', color:'black'}} onClick={isRecroding ? stopRecording : startRecording}>
+                        <textarea name='message' id='msg' required rows='3' placeholder='メッセージを入力してください...' value={content} onChange={(e) => setContent(e.target.value)} disabled={disabled} style={{ paddingRight: '50px' }}></textarea>
+                        <button style={{ position: 'absolute', right: '70px', bottom: '10px', background: 'none', border: 'none', color: 'black' }} onClick={isListening ? stopListening : startListening}>
                             {
-                                isRecroding === true ? <CiStop1 style={{fontSize:'30px'}}/> : <CiMicrophoneOn style={{fontSize:'30px'}}/>
+                                isListening === true ? <CiStop1 style={{ fontSize: '30px' }} /> : <CiMicrophoneOn style={{ fontSize: '30px' }} />
                             }
                         </button>
                         <button onClick={handleClick} disabled={disabled}>
